@@ -1,5 +1,5 @@
 import "./index.css";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const drawCard = async (count) => {
   const res = await fetch(
@@ -16,24 +16,19 @@ export default function App() {
   const [oppValue, setOppValue] = useState(0);
   const [playerValue, SetPlayerValue] = useState(0);
 
-  // useEffect(async() => {
-  //   const oppCards = await drawCard(3);
-  //   setOppCards(oppCards);
-  //   console.log(oppCards)
-  // }, []);
-
   return (
     <div className="app">
-      <Opponent oppCards={oppCards} />
+      <Opponent oppCards={oppCards} oppValue={oppValue} />
       <Player playerCards={playerCards} playerValue={playerValue} />
     </div>
   );
 }
 
-function Opponent({ oppCards }) {
+function Opponent({ oppCards, oppValue }) {
   return (
     <div className="player-container opponent">
       <Cards cards={oppCards} />
+      <p className="value oppValue">{oppValue < 1 ? "X" : oppValue}</p>
     </div>
   );
 }
@@ -49,9 +44,13 @@ function Player({ playerCards, playerValue }) {
 function PlayerMenu({ drawCard, challenge, playerValue }) {
   return (
     <div className="player-menu">
-      <button className="player-menu-button" onClick={drawCard}></button>
+      <button className="menu-button menu-button-draw" onClick={drawCard}>
+        Draw a card
+      </button>
       <p className="value">{playerValue}</p>
-      <button className="player-menu-button" onClick={challenge}></button>
+      <button className="menu-button menu-button-challenge" onClick={challenge}>
+        Challenge
+      </button>
     </div>
   );
 }
