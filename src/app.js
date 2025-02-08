@@ -1,22 +1,31 @@
-import { useState } from "react";
+import "./index.css";
+import { useEffect, useState } from "react";
 
 const drawCard = async (count) => {
   const res = await fetch(
     `https://deckofcardsapi.com/api/deck/new/draw/?count=${count}`
   );
   const data = await res.json();
-  console.log(data);
+  const cards = data.cards;
+  return cards;
 };
-
-drawCard(2);
-
 export default function App() {
-  const [oppCards, setOppCards] = useState([]);
-  const [playerCards, setPlayerCards] = useState([]);
+  const [gameStarted, setGameStarted] = useState(false);
+  const [oppCards, setOppCards] = useState([0, 0, 0]);
+  const [playerCards, setPlayerCards] = useState([0, 0, 0]);
+  const [oppValue, setOppValue] = useState(0);
+  const [playerValue, SetPlayerValue] = useState(0);
+
+  // useEffect(async() => {
+  //   const oppCards = await drawCard(3);
+  //   setOppCards(oppCards);
+  //   console.log(oppCards)
+  // }, []);
+
   return (
     <div className="app">
       <Opponent oppCards={oppCards} />
-      <Player playerCards={playerCards} />
+      <Player playerCards={playerCards} playerValue={playerValue} />
     </div>
   );
 }
@@ -29,10 +38,20 @@ function Opponent({ oppCards }) {
   );
 }
 
-function Player({ playerCards }) {
+function Player({ playerCards, playerValue }) {
   return (
     <div className="player-container player">
+      <PlayerMenu playerValue={playerValue} />
       <Cards cards={playerCards} />
+    </div>
+  );
+}
+function PlayerMenu({ drawCard, challenge, playerValue }) {
+  return (
+    <div className="player-menu">
+      <button className="player-menu-button" onClick={drawCard}></button>
+      <p className="value">{playerValue}</p>
+      <button className="player-menu-button" onClick={challenge}></button>
     </div>
   );
 }
@@ -40,15 +59,15 @@ function Player({ playerCards }) {
 function Cards({ cards }) {
   return (
     <ul className="cards-container">
-      {cards.map((card) => (
-        <Card card={card} />
+      {cards.map((card, i) => (
+        <Card card={card} key={i} />
       ))}
     </ul>
   );
 }
 function Card({ card }) {
   return (
-    <li>
+    <li className="card">
       <img src={card.image} alt={card.value}></img>
     </li>
   );
