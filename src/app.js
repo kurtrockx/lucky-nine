@@ -1,5 +1,5 @@
 import "./index.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const drawCard = async (count) => {
   const res = await fetch(
@@ -11,29 +11,38 @@ const drawCard = async (count) => {
 };
 export default function App() {
   const [gameStarted, setGameStarted] = useState(false);
+  const [score, setScore] = useState(0)
   const [oppCards, setOppCards] = useState([0, 0, 0]);
   const [playerCards, setPlayerCards] = useState([0, 0, 0]);
   const [oppValue, setOppValue] = useState(0);
   const [playerValue, SetPlayerValue] = useState(0);
+  const playerLost = oppValue > playerValue;
+
+  async function handlePlayerInitCards() {
+    if (!gameStarted) return;
+    const cards = await drawCard(2);
+    setPlayerCards([...cards, 0]);
+  }
 
   return (
     <div className="app">
-      <Opponent oppCards={oppCards} oppValue={oppValue} />
-      <Player playerCards={playerCards} playerValue={playerValue} />
+      <Opponent oppCards={oppCards} oppValue={oppValue} playerLost={playerLost} score={score}  />
+      <Player playerCards={playerCards} playerValue={playerValue} playerLost={playerLost}   />
     </div>
   );
 }
 
-function Opponent({ oppCards, oppValue }) {
+function Opponent({ oppCards, oppValue, , score }) {
   return (
     <div className="player-container opponent">
       <Cards cards={oppCards} />
-      <p className="value oppValue">{oppValue < 1 ? "X" : oppValue}</p>
+      { gameStarted ? 
+      <p className="value oppValue">{oppValue < 1 ? "X" : oppValue}</p> : playerLost ? <p>YOUR SCORE:{ </p>}}
     </div>
   );
 }
 
-function Player({ playerCards, playerValue }) {
+function Player({ playerCards, playerValue, playerLost }) {
   return (
     <div className="player-container player">
       <PlayerMenu playerValue={playerValue} />

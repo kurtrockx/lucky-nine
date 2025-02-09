@@ -16,7 +16,7 @@ html {
   font-weight: 600;
   width: 100vw;
   height: 100vh;
-  overflow: hidden;
+  overflow-x: hidden;
 }
 body,
 #root {
@@ -98,6 +98,18 @@ button:active {
   object-fit: cover;
   width: 100%;
 }
+.card-animation {
+  animation: flip 0.2s linear forwards 1.5s;
+}
+@keyframes flip {
+  from {
+    transform: scaleX(-1);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
 .player-menu {
   width: 70%;
   margin-block: 0.25em;
