@@ -65,11 +65,8 @@ function Player({
 }) {
   const [playerCards, setPlayerCards] = useState([0, 0, 0]);
 
-  async function handleInitCards() {
-    const twoCards = await drawCard(2);
-    setPlayerCards([...twoCards, { value: 0 }]);
-
-    const playerCardValues = [...twoCards, { value: 0 }].map((c) => c.value);
+  function valueConvertion(arrValue) {
+    const playerCardValues = arrValue.map((c) => c.value);
     const currValue = playerCardValues.reduce((acc, curr) => {
       if (!curr) return acc;
       if (curr === "ACE") return Number(acc) + 1;
@@ -84,12 +81,36 @@ function Player({
       if (acc < 1 && curr < 1) return 0;
       return Number(acc) + Number(curr);
     }, 0);
-    
+
+    return currValue;
+  }
+
+  async function handleInitCards() {
+    const twoCards = await drawCard(2);
+    setPlayerCards([...twoCards, { value: 0 }]);
+
+    const playerCardValues = valueConvertion([...twoCards, { value: 0 }]);
     setPlayerValue(() => {
-      if (currValue > 9) {
-        return currValue - 10;
+      if (playerCardValues > 9) {
+        return playerCardValues % 10;
       }
-      return currValue;
+      return playerCardValues;
+    });
+  }
+
+  async function handleDrawCard() {
+    if (playerCards[2].code) return;
+    const currentPlayerCards = playerCards.slice(0, 2);
+    const plusOneCard = await drawCard(1);
+    currentPlayerCards.push(...plusOneCard);
+    setPlayerCards(currentPlayerCards);
+
+    const playerCardValues = valueConvertion(currentPlayerCards);
+    setPlayerValue(() => {
+      if (playerCardValues > 9) {
+        return playerCardValues % 10;
+      }
+      return playerCardValues;
     });
   }
 
@@ -101,6 +122,7 @@ function Player({
         playerValue={playerValue}
         playerLost={playerLost}
         onInitCards={handleInitCards}
+        onDrawCard={handleDrawCard}
       />
       <Cards cards={playerCards} />
     </div>
@@ -112,13 +134,13 @@ function PlayerMenu({
   gameStarted,
   playerValue,
   playerLost,
-  drawCard,
+  onDrawCard,
   challenge,
 }) {
   return (
     <div className="player-menu">
       {gameStarted && (
-        <button className="menu-button menu-button-draw" onClick={drawCard}>
+        <button className="menu-button menu-button-draw" onClick={onDrawCard}>
           Draw a card
         </button>
       )}

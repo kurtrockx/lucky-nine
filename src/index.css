@@ -69,7 +69,8 @@ button:active {
 }
 .cards-container {
   list-style: none;
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   border-radius: 10px;
   border: 1px solid #e5e5e5;
   overflow: hidden;
@@ -96,6 +97,7 @@ button:active {
 }
 .card img {
   object-fit: cover;
+  object-position: center;
   width: 100%;
 }
 .card-animation {
