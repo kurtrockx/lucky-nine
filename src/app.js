@@ -10,11 +10,11 @@ const drawCard = async (count) => {
   return cards;
 };
 export default function App() {
-  const [gameStarted, setGameStarted] = useState(false);
-  const [score, setScore] = useState(0)
+  const [gameStarted, setGameStarted] = useState(true);
+  const [score, setScore] = useState(0);
   const [oppCards, setOppCards] = useState([0, 0, 0]);
   const [playerCards, setPlayerCards] = useState([0, 0, 0]);
-  const [oppValue, setOppValue] = useState(0);
+  const [oppValue, setOppValue] = useState("X");
   const [playerValue, SetPlayerValue] = useState(0);
   const playerLost = oppValue > playerValue;
 
@@ -26,23 +26,40 @@ export default function App() {
 
   return (
     <div className="app">
-      <Opponent oppCards={oppCards} oppValue={oppValue} playerLost={playerLost} score={score}  />
-      <Player playerCards={playerCards} playerValue={playerValue} playerLost={playerLost}   />
+      <Opponent
+        oppCards={oppCards}
+        oppValue={oppValue}
+        playerLost={playerLost}
+        score={score}
+        gameStarted={gameStarted}
+      />
+      <Player
+        playerCards={playerCards}
+        playerValue={playerValue}
+        playerLost={playerLost}
+        gameStarted={gameStarted}
+      />
     </div>
   );
 }
 
-function Opponent({ oppCards, oppValue, , score }) {
+function Opponent({ oppCards, oppValue, gameStarted, score, playerLost }) {
   return (
     <div className="player-container opponent">
       <Cards cards={oppCards} />
-      { gameStarted ? 
-      <p className="value oppValue">{oppValue < 1 ? "X" : oppValue}</p> : playerLost ? <p>YOUR SCORE:{ </p>}}
+
+      <p className="value oppValue">
+        {gameStarted
+          ? oppValue
+          : playerLost
+          ? `YOUR SCORE: ${score}`
+          : "LUCKY 9"}
+      </p>
     </div>
   );
 }
 
-function Player({ playerCards, playerValue, playerLost }) {
+function Player({ playerCards, playerValue, gameStarted, score, playerLost }) {
   return (
     <div className="player-container player">
       <PlayerMenu playerValue={playerValue} />
