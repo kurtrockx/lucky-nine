@@ -1,5 +1,5 @@
 import "./index.css";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const drawCard = async (count) => {
   const res = await fetch(
@@ -7,43 +7,40 @@ const drawCard = async (count) => {
   );
   const data = await res.json();
   const cards = data.cards;
+  console.log(cards);
   return cards;
 };
-export default function App() {
-  const [gameStarted, setGameStarted] = useState(true);
-  const [score, setScore] = useState(0);
-  const [oppCards, setOppCards] = useState([0, 0, 0]);
-  const [playerCards, setPlayerCards] = useState([0, 0, 0]);
-  const [oppValue, setOppValue] = useState("X");
-  const [playerValue, SetPlayerValue] = useState(0);
-  const playerLost = oppValue > playerValue;
 
-  async function handlePlayerInitCards() {
-    if (!gameStarted) return;
-    const cards = await drawCard(2);
-    setPlayerCards([...cards, 0]);
-  }
+drawCard(52);
+export default function App() {
+  const [gameStarted, setGameStarted] = useState(false);
+  const [score, setScore] = useState(0);
+  const [oppValue, setOppValue] = useState("X");
+  const [playerValue, setPlayerValue] = useState(0);
+  const playerLost = oppValue > playerValue;
 
   return (
     <div className="app">
       <Opponent
-        oppCards={oppCards}
         oppValue={oppValue}
+        gameStarted={gameStarted}
         playerLost={playerLost}
         score={score}
-        gameStarted={gameStarted}
       />
       <Player
-        playerCards={playerCards}
+        setGameStarted={setGameStarted}
+        gameStarted={gameStarted}
+        setPlayerValue={setPlayerValue}
         playerValue={playerValue}
         playerLost={playerLost}
-        gameStarted={gameStarted}
       />
     </div>
   );
 }
 
-function Opponent({ oppCards, oppValue, gameStarted, score, playerLost }) {
+function Opponent({ gameStarted, oppValue, score, playerLost }) {
+  const [oppCards, setOppCards] = useState([0, 0, 0]);
+
   return (
     <div className="player-container opponent">
       <Cards cards={oppCards} />
@@ -59,24 +56,93 @@ function Opponent({ oppCards, oppValue, gameStarted, score, playerLost }) {
   );
 }
 
-function Player({ playerCards, playerValue, gameStarted, score, playerLost }) {
+function Player({
+  setPlayerValue,
+  playerValue,
+  setGameStarted,
+  gameStarted,
+  playerLost,
+}) {
+  const [playerCards, setPlayerCards] = useState([0, 0, 0]);
+
+  async function handleInitCards() {
+    const twoCards = await drawCard(2);
+    setPlayerCards([...twoCards, { value: 0 }]);
+
+    const playerCardValues = [...twoCards, { value: 0 }].map((c) => c.value);
+    const currValue = playerCardValues.reduce((acc, curr) => {
+      if (!curr) return acc;
+      if (curr === "ACE") return Number(acc) + 1;
+      if (
+        curr === "JACK" ||
+        curr === "QUEEN" ||
+        curr === "KING" ||
+        curr === "10"
+      )
+        return acc;
+      if (acc < 1) return curr;
+      if (acc < 1 && curr < 1) return 0;
+      return Number(acc) + Number(curr);
+    }, 0);
+    
+    setPlayerValue(() => {
+      if (currValue > 9) {
+        return currValue - 10;
+      }
+      return currValue;
+    });
+  }
+
   return (
     <div className="player-container player">
-      <PlayerMenu playerValue={playerValue} />
+      <PlayerMenu
+        setGameStarted={setGameStarted}
+        gameStarted={gameStarted}
+        playerValue={playerValue}
+        playerLost={playerLost}
+        onInitCards={handleInitCards}
+      />
       <Cards cards={playerCards} />
     </div>
   );
 }
-function PlayerMenu({ drawCard, challenge, playerValue }) {
+function PlayerMenu({
+  onInitCards,
+  setGameStarted,
+  gameStarted,
+  playerValue,
+  playerLost,
+  drawCard,
+  challenge,
+}) {
   return (
     <div className="player-menu">
-      <button className="menu-button menu-button-draw" onClick={drawCard}>
-        Draw a card
-      </button>
-      <p className="value">{playerValue}</p>
-      <button className="menu-button menu-button-challenge" onClick={challenge}>
-        Challenge
-      </button>
+      {gameStarted && (
+        <button className="menu-button menu-button-draw" onClick={drawCard}>
+          Draw a card
+        </button>
+      )}
+      {gameStarted ? (
+        <p className="value">{playerValue}</p>
+      ) : (
+        <button
+          className="start-game-button"
+          onClick={() => {
+            setGameStarted(true);
+            onInitCards();
+          }}
+        >
+          {playerLost ? "Try again?" : "Start Game"}
+        </button>
+      )}
+      {gameStarted && (
+        <button
+          className="menu-button menu-button-challenge"
+          onClick={challenge}
+        >
+          Challenge
+        </button>
+      )}
     </div>
   );
 }
