@@ -1,7 +1,7 @@
 import "./index.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-const drawCard = async (count) => {
+const drawCards = async (count) => {
   const res = await fetch(
     `https://deckofcardsapi.com/api/deck/new/draw/?count=${count}`
   );
@@ -11,17 +11,20 @@ const drawCard = async (count) => {
   return cards;
 };
 
-drawCard(52);
+drawCards(52);
 export default function App() {
   const [gameStarted, setGameStarted] = useState(false);
   const [score, setScore] = useState(0);
   const [oppValue, setOppValue] = useState("X");
   const [playerValue, setPlayerValue] = useState(0);
-  const playerLost = oppValue > playerValue;
+  const [playerLost, setPlayerLost] = useState(false);
+  const [playerCards, setPlayerCards] = useState([0, 0, 0]);
+  const [oppCards, setOppCards] = useState([0, 0, 0]);
 
   return (
     <div className="app">
       <Opponent
+        oppCards={oppCards}
         oppValue={oppValue}
         gameStarted={gameStarted}
         playerLost={playerLost}
@@ -30,17 +33,22 @@ export default function App() {
       <Player
         setGameStarted={setGameStarted}
         gameStarted={gameStarted}
+        setPlayerLost={setPlayerLost}
+        playerLost={playerLost}
+        setOppCards={setOppCards}
+        oppCards={oppCards}
+        setPlayerCards={setPlayerCards}
+        playerCards={playerCards}
         setPlayerValue={setPlayerValue}
         playerValue={playerValue}
-        playerLost={playerLost}
+        setOppValue={setOppValue}
+        oppValue={oppValue}
       />
     </div>
   );
 }
 
-function Opponent({ gameStarted, oppValue, score, playerLost }) {
-  const [oppCards, setOppCards] = useState([0, 0, 0]);
-
+function Opponent({ gameStarted, oppCards, oppValue, score, playerLost }) {
   return (
     <div className="player-container opponent">
       <Cards cards={oppCards} />
@@ -57,14 +65,19 @@ function Opponent({ gameStarted, oppValue, score, playerLost }) {
 }
 
 function Player({
-  setPlayerValue,
-  playerValue,
   setGameStarted,
   gameStarted,
+  setPlayerLost,
   playerLost,
+  setPlayerCards,
+  playerCards,
+  setOppCards,
+  oppCards,
+  setPlayerValue,
+  playerValue,
+  setOppValue,
+  oppValue,
 }) {
-  const [playerCards, setPlayerCards] = useState([0, 0, 0]);
-
   function valueConvertion(arrValue) {
     const playerCardValues = arrValue.map((c) => c.value);
     const currValue = playerCardValues.reduce((acc, curr) => {
@@ -86,32 +99,67 @@ function Player({
   }
 
   async function handleInitCards() {
-    const twoCards = await drawCard(2);
+    const twoCards = await drawCards(2);
     setPlayerCards([...twoCards, { value: 0 }]);
 
     const playerCardValues = valueConvertion([...twoCards, { value: 0 }]);
-    setPlayerValue(() => {
-      if (playerCardValues > 9) {
-        return playerCardValues % 10;
-      }
-      return playerCardValues;
-    });
+    setPlayerValue(
+      playerCardValues > 9 ? playerCardValues % 10 : playerCardValues
+    );
   }
 
-  async function handleDrawCard() {
+  async function handleDrawCards() {
     if (playerCards[2].code) return;
     const currentPlayerCards = playerCards.slice(0, 2);
-    const plusOneCard = await drawCard(1);
+    const plusOneCard = await drawCards(1);
     currentPlayerCards.push(...plusOneCard);
     setPlayerCards(currentPlayerCards);
 
     const playerCardValues = valueConvertion(currentPlayerCards);
-    setPlayerValue(() => {
-      if (playerCardValues > 9) {
-        return playerCardValues % 10;
+    setPlayerValue(
+      playerCardValues > 9 ? playerCardValues % 10 : playerCardValues
+    );
+  }
+
+  async function handleOppCards() {
+    const drawOppCards = await drawCards(3);
+    setOppCards(drawOppCards);
+    const playerCardValues = valueConvertion(drawOppCards);
+    await setOppValue(
+      playerCardValues > 9 ? playerCardValues % 10 : playerCardValues
+    );
+  }
+
+  function handleChallenge() {
+    setTimeout(() => {
+      if (playerValue > oppValue) {
+        return;
       }
-      return playerCardValues;
-    });
+      if (playerValue < oppValue) {
+        setGameStarted(false);
+        setPlayerLost(true);
+        console.log("it should have worked");
+      }
+    }, 3000);
+  }
+
+  useEffect(() => {
+    if (oppValue !== 0) {
+      handleChallenge();
+    }
+  }, [oppValue]);
+
+  function handleReset() {
+    // setPlayerCards,
+
+    // setOppCards,
+
+    // setPlayerValue,
+
+    // setOppValue,
+
+    setPlayerCards([0, 0, 0]);
+    handleInitCards();
   }
 
   return (
@@ -122,7 +170,8 @@ function Player({
         playerValue={playerValue}
         playerLost={playerLost}
         onInitCards={handleInitCards}
-        onDrawCard={handleDrawCard}
+        onDrawCards={handleDrawCards}
+        onOppCards={handleOppCards}
       />
       <Cards cards={playerCards} />
     </div>
@@ -134,13 +183,13 @@ function PlayerMenu({
   gameStarted,
   playerValue,
   playerLost,
-  onDrawCard,
-  challenge,
+  onDrawCards,
+  onOppCards,
 }) {
   return (
     <div className="player-menu">
       {gameStarted && (
-        <button className="menu-button menu-button-draw" onClick={onDrawCard}>
+        <button className="menu-button menu-button-draw" onClick={onDrawCards}>
           Draw a card
         </button>
       )}
@@ -160,7 +209,7 @@ function PlayerMenu({
       {gameStarted && (
         <button
           className="menu-button menu-button-challenge"
-          onClick={challenge}
+          onClick={onOppCards}
         >
           Challenge
         </button>
