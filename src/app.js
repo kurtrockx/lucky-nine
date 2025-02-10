@@ -45,6 +45,7 @@ export default function App() {
         setOppValue={setOppValue}
         oppValue={oppValue}
       />
+      <Score score={score} gameStarted={gameStarted} />
     </div>
   );
 }
@@ -97,7 +98,7 @@ function Player({
       return Number(acc) + Number(curr);
     }, 0);
 
-    return currValue;
+    return +currValue;
   }
 
   async function handleInitCards() {
@@ -124,11 +125,11 @@ function Player({
   }
 
   async function handleOppCards() {
-    if (!oppCards[0].image) {
+    if (oppCards[0] === 0) {
       const drawOppCards = await drawCards(3);
       setOppCards(drawOppCards);
       const playerCardValues = valueConvertion(drawOppCards);
-      await setOppValue(
+      setOppValue(
         playerCardValues > 9 ? playerCardValues % 10 : playerCardValues
       );
     }
@@ -138,13 +139,16 @@ function Player({
     setTimeout(() => {
       if (playerValue > oppValue) {
         handleNextLevel();
-        console.log("hello");
       }
       if (playerValue < oppValue) {
         setGameStarted(false);
         setPlayerLost(true);
       }
-    }, 2000);
+      if (playerValue === oppValue) {
+        handleReset();
+        handleInitCards();
+      }
+    }, 1000);
   }
 
   useEffect(() => {
@@ -248,5 +252,17 @@ function Card({ card }) {
     <li className="card">
       <img src={card.image} alt={card.value}></img>
     </li>
+  );
+}
+
+function Score({ score, gameStarted }) {
+  return (
+    <div className="top-score">
+      {!gameStarted
+        ? ""
+        : score < 10
+        ? score.toString().padStart(2, "0")
+        : score}
+    </div>
   );
 }

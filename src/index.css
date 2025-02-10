@@ -133,6 +133,7 @@ button:active {
   position: absolute;
   left: 50%;
   translate: -50%;
+  width: max-content;
   font-size: var(--font-size-larger);
   font-weight: 600;
 }
@@ -151,6 +152,13 @@ button:active {
 .menu-button-challenge {
   background: black;
   color: white;
+}
+
+.top-score {
+  position: absolute;
+  top: 0;
+  right: 0.25em;
+  font-size: var(--font-size-larger);
 }
 
 @media screen and (max-width: 540px) {
