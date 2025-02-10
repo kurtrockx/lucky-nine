@@ -81,6 +81,7 @@ function Player({
   setOppValue,
   oppValue,
 }) {
+  const drew = useRef(false);
   const challenged = useRef(false);
 
   function valueConvertion(arrValue) {
@@ -114,7 +115,8 @@ function Player({
   }
 
   async function handleDrawCards() {
-    if (playerCards[2].code) return;
+    if (drew.current === true) return;
+    drew.current = true;
     const currentPlayerCards = playerCards.slice(0, 2);
     const plusOneCard = await drawCards(1);
     currentPlayerCards.push(...plusOneCard);
