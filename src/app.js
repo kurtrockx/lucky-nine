@@ -128,9 +128,9 @@ function Player({
     if (oppCards[0] === 0) {
       const drawOppCards = await drawCards(3);
       setOppCards(drawOppCards);
-      const playerCardValues = valueConvertion(drawOppCards);
+      const oppCardValues = valueConvertion(drawOppCards);
       setOppValue(
-        playerCardValues > 9 ? playerCardValues % 10 : playerCardValues
+        oppCardValues > 9 ? oppCardValues % 10 : oppCardValues
       );
     }
   }
@@ -139,20 +139,18 @@ function Player({
     setTimeout(() => {
       if (playerValue > oppValue) {
         handleNextLevel();
-      }
-      if (playerValue < oppValue) {
+      } else if (playerValue < oppValue) {
         setGameStarted(false);
         setPlayerLost(true);
-      }
-      if (playerValue === oppValue) {
+      } else {
         handleReset();
         handleInitCards();
       }
-    }, 1000);
+    }, 2000);
   }
 
   useEffect(() => {
-    if (oppValue !== 0) {
+    if (oppValue !== "X") {
       handleChallenge();
     }
   }, [oppValue]);
@@ -169,7 +167,6 @@ function Player({
     handleInitCards();
     setScore((s) => s + 1);
   }
-
   return (
     <div className="player-container player">
       <PlayerMenu
