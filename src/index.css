@@ -41,6 +41,7 @@ button:active {
   position: relative;
   margin: auto;
   max-width: 840px;
+  max-height: 100%;
   aspect-ratio: 1.2/1;
   padding: 0.5em 0;
   border-radius: 10px;

@@ -159,6 +159,8 @@ function Player({
   }, [oppValue]);
 
   function handleReset() {
+    drew.current = false;
+    challenged.current = false;
     setPlayerCards([0, 0, 0]);
     setOppCards([0, 0, 0]);
     setPlayerValue(0);
