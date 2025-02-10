@@ -1,5 +1,5 @@
 import "./index.css";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const drawCards = async (count) => {
   const res = await fetch(
@@ -81,6 +81,8 @@ function Player({
   setOppValue,
   oppValue,
 }) {
+  const challenged = useRef(false);
+
   function valueConvertion(arrValue) {
     const playerCardValues = arrValue.map((c) => c.value);
     const currValue = playerCardValues.reduce((acc, curr) => {
@@ -125,13 +127,12 @@ function Player({
   }
 
   async function handleOppCards() {
-    if (oppCards[0] === 0) {
+    if (challenged.current === false) {
+      challenged.current = true;
       const drawOppCards = await drawCards(3);
       setOppCards(drawOppCards);
       const oppCardValues = valueConvertion(drawOppCards);
-      setOppValue(
-        oppCardValues > 9 ? oppCardValues % 10 : oppCardValues
-      );
+      setOppValue(oppCardValues > 9 ? oppCardValues % 10 : oppCardValues);
     }
   }
 
@@ -247,7 +248,7 @@ function Cards({ cards }) {
 function Card({ card }) {
   return (
     <li className="card">
-      <img src={card.image} alt={card.value}></img>
+      <img src={card.image} alt={card.value} />
     </li>
   );
 }
