@@ -33,6 +33,7 @@ export default function App() {
       <Player
         setGameStarted={setGameStarted}
         gameStarted={gameStarted}
+        setScore={setScore}
         setPlayerLost={setPlayerLost}
         playerLost={playerLost}
         setOppCards={setOppCards}
@@ -69,6 +70,7 @@ function Player({
   gameStarted,
   setPlayerLost,
   playerLost,
+  setScore,
   setPlayerCards,
   playerCards,
   setOppCards,
@@ -122,25 +124,27 @@ function Player({
   }
 
   async function handleOppCards() {
-    const drawOppCards = await drawCards(3);
-    setOppCards(drawOppCards);
-    const playerCardValues = valueConvertion(drawOppCards);
-    await setOppValue(
-      playerCardValues > 9 ? playerCardValues % 10 : playerCardValues
-    );
+    if (!oppCards[0].image) {
+      const drawOppCards = await drawCards(3);
+      setOppCards(drawOppCards);
+      const playerCardValues = valueConvertion(drawOppCards);
+      await setOppValue(
+        playerCardValues > 9 ? playerCardValues % 10 : playerCardValues
+      );
+    }
   }
 
   function handleChallenge() {
     setTimeout(() => {
       if (playerValue > oppValue) {
-        return;
+        handleNextLevel();
+        console.log("hello");
       }
       if (playerValue < oppValue) {
         setGameStarted(false);
         setPlayerLost(true);
-        console.log("it should have worked");
       }
-    }, 3000);
+    }, 2000);
   }
 
   useEffect(() => {
@@ -150,16 +154,16 @@ function Player({
   }, [oppValue]);
 
   function handleReset() {
-    // setPlayerCards,
-
-    // setOppCards,
-
-    // setPlayerValue,
-
-    // setOppValue,
-
     setPlayerCards([0, 0, 0]);
+    setOppCards([0, 0, 0]);
+    setPlayerValue(0);
+    setOppValue("X");
+  }
+
+  function handleNextLevel() {
+    handleReset();
     handleInitCards();
+    setScore((s) => s + 1);
   }
 
   return (
@@ -169,22 +173,28 @@ function Player({
         gameStarted={gameStarted}
         playerValue={playerValue}
         playerLost={playerLost}
+        setScore={setScore}
         onInitCards={handleInitCards}
         onDrawCards={handleDrawCards}
         onOppCards={handleOppCards}
+        setPlayerLost={setPlayerLost}
+        onReset={handleReset}
       />
       <Cards cards={playerCards} />
     </div>
   );
 }
 function PlayerMenu({
-  onInitCards,
   setGameStarted,
   gameStarted,
-  playerValue,
+  setPlayerLost,
   playerLost,
-  onDrawCards,
+  setScore,
+  playerValue,
   onOppCards,
+  onReset,
+  onInitCards,
+  onDrawCards,
 }) {
   return (
     <div className="player-menu">
@@ -199,6 +209,12 @@ function PlayerMenu({
         <button
           className="start-game-button"
           onClick={() => {
+            if (playerLost) {
+              onReset();
+              setPlayerLost(false);
+              return;
+            }
+            setScore(0);
             setGameStarted(true);
             onInitCards();
           }}
