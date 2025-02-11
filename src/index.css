@@ -96,7 +96,8 @@ button:active {
   height: 100%;
   display: flex;
   align-items: center;
-  background: url("../back.png") white 100%/100% no-repeat;
+  background: url("https://deckofcardsapi.com/static/img/back.png") white 100%/100%
+    no-repeat;
   box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.25);
 }
 .card img {
@@ -208,7 +209,7 @@ button:active {
   box-shadow: inset 0 0 10px black;
 }
 
-@media screen and (max-width: 540px) {
+@media screen and (max-width: 480px) {
   .app {
     width: 100%;
     height: 100%;
@@ -218,9 +219,10 @@ button:active {
     height: 20%;
   }
   .player .cards-container {
-    width: 90%;
-    height: 40%;
-    gap: 1em;
+    width: 80%;
+    height: 42%;
+    padding: 0.5em;
+    gap: 0.5em;
   }
   .player-menu {
     position: absolute;
