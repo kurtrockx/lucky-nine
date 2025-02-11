@@ -199,7 +199,6 @@ button:active {
 .toggled-off {
   left: 50%;
 }
-
 .face-card-button:has(.toggled-on) {
   background: #0e4322;
   box-shadow: inset 0 0 10px black;
@@ -207,6 +206,22 @@ button:active {
 .face-card-button:has(.toggled-off) {
   background: #360808;
   box-shadow: inset 0 0 10px black;
+}
+
+.lives-container {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  translate: -50%;
+  height: 40px;
+  margin-block: 0.5rem;
+  display: flex;
+  flex-direction: row;
+  gap: 0;
+}
+.lives-container img {
+  object-fit: contain;
+  height: 100%;
 }
 
 @media screen and (max-width: 480px) {

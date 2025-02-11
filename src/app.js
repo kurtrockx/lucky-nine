@@ -10,6 +10,7 @@ export default function App() {
   const [playerCards, setPlayerCards] = useState([0, 0, 0]);
   const [oppCards, setOppCards] = useState([0, 0, 0]);
   const [toggledFaceCards, setToggledFaceCards] = useState(true);
+  const [lives, setLives] = useState(3);
 
   const drawCards = async (count) => {
     if (toggledFaceCards === true) {
@@ -88,6 +89,8 @@ export default function App() {
         score={score}
       />
       <Player
+        setLives={setLives}
+        lives={lives}
         drawCards={drawCards}
         setGameStarted={setGameStarted}
         gameStarted={gameStarted}
@@ -105,28 +108,59 @@ export default function App() {
       />
       <Score score={score} gameStarted={gameStarted} />
       <FaceCardsButton
+        gameStarted={gameStarted}
+        playerLost={playerLost}
         setToggledFaceCards={setToggledFaceCards}
         toggledFaceCards={toggledFaceCards}
         drawCards={drawCards}
       />
+      <Lives gameStarted={gameStarted} lives={lives} />
     </div>
   );
 }
 
-function FaceCardsButton({ setToggledFaceCards, toggledFaceCards, drawCards }) {
+function FaceCardsButton({
+  setToggledFaceCards,
+  toggledFaceCards,
+  drawCards,
+  gameStarted,
+  playerLost,
+}) {
   return (
-    <div
-      onClick={() => setToggledFaceCards((f) => !f)}
-      className={`face-card-button ${
-        toggledFaceCards ? "face-cards-on" : "face-cards-off"
-      }`}
-    >
-      <div
-        className={`toggle-element ${
-          toggledFaceCards ? "toggled-on" : "toggled-off"
-        }`}
-      ></div>
-    </div>
+    <>
+      {!gameStarted && !playerLost && (
+        <div
+          onClick={() => setToggledFaceCards((f) => !f)}
+          className={`face-card-button ${
+            toggledFaceCards ? "face-cards-on" : "face-cards-off"
+          }`}
+        >
+          <div
+            className={`toggle-element ${
+              toggledFaceCards ? "toggled-on" : "toggled-off"
+            }`}
+          ></div>
+        </div>
+      )}
+    </>
+  );
+}
+function Lives({ gameStarted, lives }) {
+  return (
+    <>
+      {gameStarted && lives > 0 && (
+        <div className="lives-container">
+          {Array.from({ length: lives }, (_, i) => {
+            return (
+              <img
+                src="https://png.pngtree.com/png-vector/20220428/ourmid/pngtree-smooth-glossy-heart-vector-file-ai-and-png-png-image_4557871.png"
+                alt={`heart-${i}`}
+              />
+            );
+          })}
+        </div>
+      )}
+    </>
   );
 }
 
@@ -147,6 +181,8 @@ function Opponent({ gameStarted, oppCards, oppValue, score, playerLost }) {
 }
 
 function Player({
+  setLives,
+  lives,
   drawCards,
   setGameStarted,
   gameStarted,
@@ -224,6 +260,12 @@ function Player({
       if (playerValue > oppValue) {
         handleNextLevel();
       } else if (playerValue < oppValue) {
+        setLives((l) => l - 1);
+        if (lives > 1) {
+          handleReset();
+          handleInitCards();
+          return;
+        }
         setGameStarted(false);
         setPlayerLost(true);
       } else {
@@ -256,6 +298,7 @@ function Player({
   return (
     <div className="player-container player">
       <PlayerMenu
+        setLives={setLives}
         setGameStarted={setGameStarted}
         gameStarted={gameStarted}
         playerValue={playerValue}
@@ -272,6 +315,7 @@ function Player({
   );
 }
 function PlayerMenu({
+  setLives,
   setGameStarted,
   gameStarted,
   setPlayerLost,
@@ -301,6 +345,7 @@ function PlayerMenu({
               setPlayerLost(false);
               return;
             }
+            setLives(3);
             setScore(0);
             setGameStarted(true);
             onInitCards();
